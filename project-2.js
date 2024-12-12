@@ -121,6 +121,7 @@ export class Project2 extends DDDSuper(I18NMixin(LitElement)) {
             .fire="${this.characterAttributes.fire}"
             .walking="${this.characterAttributes.walking}"
             .circle="${this.characterAttributes.circle}"
+            
           ></rpg-character>
         </div>
 
@@ -131,6 +132,8 @@ export class Project2 extends DDDSuper(I18NMixin(LitElement)) {
           ${this.renderInputGroup("Fire", "fire", "checkbox")}
           ${this.renderInputGroup("Hat", "hat", "input")}
           ${this.renderInputGroup("Hat Color", "hatcolor", "slider", 0, 9)}
+          ${this.renderInputGroup ("Walking", "walking", "checkbox")}
+          ${this.renderInputGroup ("Circle", "circle", "checkbox")}
 
           <button @click="${this.generateShareLink}">Share</button>
           <div id="share-link"></div>
@@ -157,12 +160,12 @@ export class Project2 extends DDDSuper(I18NMixin(LitElement)) {
         <div class="input-group">
           <label>${label}:</label>
           <wired-checkbox
-            .checked="${this.characterAttributes[name]}"
+            ?checked="${this.characterAttributes[name]}"
             @change="${(e) => this.updateCharacter(e, name)}"
           ></wired-checkbox>
         </div>
       `;
-    } else {
+    } else if (type == "input"){
       return html`
         <div class="input-group">
           <label>${label}:</label>
@@ -175,15 +178,34 @@ export class Project2 extends DDDSuper(I18NMixin(LitElement)) {
     }
   }
 
+
   updateCharacter(event, name) {
-    const value =
-      event.target.type === "checkbox"
-        ? event.target.checked
-        : Number(event.target.value) || event.target.value;
-    this.characterAttributes[name] = value;
+    let value;
+  
+    if (event.target.type === "checkbox" || event.target.tagName === "WIRED-CHECKBOX") {
+      value = event.target.checked;
+    } else if (event.target.tagName === "WIRED-SLIDER") {
+      value = Number(event.target.value); 
+    } else {
+      value = event.target.value; 
+    }
+  
+    
+    this.characterAttributes = {
+      ...this.characterAttributes,
+      [name]: value,
+    };
+  
     this.requestUpdate();
-    this.updateURLParams();
+    this.updateSeed(); 
+    this.updateURLParams(); 
   }
+  
+  
+  updateSeed() {
+    this.seed = Object.values(this.characterAttributes).join("-");
+  }
+  
 
   updateURLParams() {
     const urlParams = new URLSearchParams();

@@ -116,7 +116,7 @@ class RpgCharacter extends SimpleColors {
    * LitElement style callback
    */
   static get styles() {
-    // support for using in other classes
+
     let styles = [];
     if (super.styles) {
       styles = super.styles;
